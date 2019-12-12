@@ -44,7 +44,7 @@ class Conv2d:
         return result
 
     def calculate_prev_layer_error(self, activation_theta):
-        kernel_size = self.kernel.shape[1]
+        kernel_size = self.kernel_size
         result = np.zeros(self.cached_image.shape)
         padded_theta = np.pad(activation_theta, ((kernel_size - 1), (kernel_size - 1)),
                               'constant', constant_values=0)
@@ -61,18 +61,24 @@ class Conv2d:
         return result
 
     def update_weights(self, activation_theta, learning_rate):
+        if activation_theta.ndim != 3:
+            raise RuntimeError('Activation must be 3 dimensional')
+        if activation_theta.shape[0] != self.features:
+            raise RuntimeError('Activation channels not equal to feature numbers')
+
         image_dims = self.cached_image.shape
-        theta_size = activation_theta.shape[0]
+        theta_size = activation_theta.shape[1]
         width = image_dims[1] - theta_size + 1
         height = image_dims[2] - theta_size + 1
         result = np.zeros(self.kernel.shape)
-        for c in range(0, len(self.cached_image)):
-            for i in range(0, width):
-                for j in range(0, height):
-                    result[c, i, j] = np.sum(
-                        np.multiply(
-                            self.cached_image[c, i:i + theta_size, j:j + theta_size],
-                            activation_theta
+        for f in range(0, self.features):
+            for c in range(0, len(self.cached_image)):
+                for i in range(0, width):
+                    for j in range(0, height):
+                        result[f, c, i, j] = np.sum(
+                            np.multiply(
+                                self.cached_image[c, i:i + theta_size, j:j + theta_size],
+                                activation_theta[f]
+                            )
                         )
-                    )
         return self.kernel - learning_rate * result
