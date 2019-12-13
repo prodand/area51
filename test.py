@@ -1,8 +1,5 @@
 import numpy as np
 
-image = np.arange(1, 10).reshape((3, 3))
-
-kernels = np.arange(1, 9).reshape((2, 2, 2))
-
-res = np.multiply(image, kernels)
-print(res)
+res = np.argmax([[2, 1], [0, 4]], axis=None)
+val = np.unravel_index(res, (2, 2))
+print(val)
