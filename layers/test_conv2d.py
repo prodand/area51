@@ -7,17 +7,15 @@ from layers.conv2d import Conv2d
 
 class TestConv2d(TestCase):
 
-    def setUp(self) -> None:
-        self.subject = Conv2d(1, 2, 1, [1, -1, 1, 2])
-
     def test_init(self):
         test = Conv2d(2, 3, 5)
         self.assertEqual(test.kernel.shape, (2, 5, 3, 3))
 
     def test_relu(self):
+        layer = Conv2d(1, 2, 1, [1, -1, 1, 2])
         input = np.array(([-1, 3], [2, -1]))
         exp = np.array(([0, 3], [2, 0]))
-        np.testing.assert_array_equal(self.subject.relu(input), exp)
+        np.testing.assert_array_equal(layer.relu(input), exp)
 
     def test_convolve(self):
         layer = Conv2d(2, 2, 1,
@@ -45,11 +43,34 @@ class TestConv2d(TestCase):
         np.testing.assert_array_equal(res, exp)
 
     def test_calculate_prev_layer_error(self):
-        theta = np.array(([0.5, 0.3], [0.2, 0.7]))
-        image = np.array(([1, 2, 1, 2, 3, 1, 2, 1, 1])).reshape((1, 3, 3))
-        self.subject.forward(image)
-        res = self.subject.calculate_prev_layer_error(theta)
+        layer = Conv2d(1, 2, 1, [1, -1, 1, 2])
+        theta = np.array((0.5, 0.3, 0.2, 0.7)).reshape((1, 2, 2))
+        res = layer.calculate_prev_layer_error(theta)
         exp = np.array([0.5, -0.2, -0.3, 0.7, 1.8, -0.1, 0.2, 1.1, 1.4]).reshape((1, 3, 3))
+        np.testing.assert_allclose(res, exp)
+
+    def test_calculate_prev_layer_error_multi_feature(self):
+        layer = Conv2d(2, 2, 1, [1, -1, 1, 2, 1, 2, 1, 1])
+
+        theta = np.array((1., 0., 1., 0., 2., 0., 2., 0.)).reshape((2, 2, 2))
+        res = layer.calculate_prev_layer_error(theta)
+        # 1 -1 0 , 2 1 0, 1 2 0
+        # 2  4 0 , 4 6 0, 2 2 0
+        exp = np.array([3, 3, 0, 6, 7, 0, 3, 4, 0]).reshape((1, 3, 3))
+        np.testing.assert_allclose(res, exp)
+
+    def test_calculate_prev_layer_error_multi_feature_multi_channel(self):
+        layer = Conv2d(2, 2, 2, [
+            1, -1, 1, 2, 1, 2, 1, 1,
+            1, -1, 1, 1, 2, -2, 1, 1
+        ])
+
+        theta = np.array((1., 0., 1., 0., 2., 0., 2., 0.)).reshape((2, 2, 2))
+        res = layer.calculate_prev_layer_error(theta)
+        exp = np.array([
+            3, -3, 0, 6, 1, 0, 3, 4, 0,
+            5, -2, 0, 8, 1, 0, 3, 3, 0
+        ]).reshape((2, 3, 3))
         np.testing.assert_allclose(res, exp)
 
     def test_update_weights(self):
