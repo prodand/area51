@@ -43,6 +43,7 @@ class Conv2d:
             raise RuntimeError('Activation must be 3 dimensional')
         if activation_theta.shape[0] != self.features:
             raise RuntimeError('Activation channels not equal to feature numbers')
+
         result = self.calculate_prev_layer_error(activation_theta)
         self.update_weights(activation_theta, learning_rate)
         return result
@@ -69,6 +70,7 @@ class Conv2d:
                         )
         return result
 
+    # TODO: make it to return just derivative for weights
     def update_weights(self, activation_theta, learning_rate):
         image_dims = self.cached_image.shape
         theta_size = activation_theta.shape[1]
