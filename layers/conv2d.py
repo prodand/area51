@@ -1,7 +1,9 @@
 import numpy as np
 
+from layers.base_layer import BaseLayer
 
-class Conv2d:
+
+class Conv2d(BaseLayer):
     def __init__(self, features, kernel_size, channels, values=None):
         self.features = features
         self.kernel_size = kernel_size
@@ -38,15 +40,13 @@ class Conv2d:
     def relu(self, image):
         return np.maximum(image, 0)
 
-    def back(self, activation_theta, learning_rate):
+    def back(self, activation_theta):
         if activation_theta.ndim != 3:
             raise RuntimeError('Activation must be 3 dimensional')
         if activation_theta.shape[0] != self.features:
             raise RuntimeError('Activation channels not equal to feature numbers')
 
-        result = self.calculate_prev_layer_error(activation_theta)
-        self.update_weights(activation_theta, learning_rate)
-        return result
+        return self.calculate_prev_layer_error(activation_theta)
 
     def calculate_prev_layer_error(self, activation_theta):
         kernel_size = self.kernel_size

@@ -8,5 +8,5 @@ class BaseLayer(ABC):
         ...
 
     @abstractmethod
-    def back(self):
+    def back(self, activation_theta):
         ...
