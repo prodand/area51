@@ -13,12 +13,10 @@ class Conv2d(BaseLayer):
         else:
             self.kernel = np.array(values, dtype=np.float64) \
                 .reshape((features, channels, kernel_size, kernel_size))
-        self.cached_image = np.array([])
 
     def forward(self, image):
         if image.ndim != 3:
             raise RuntimeError()
-        self.cached_image = image.astype(np.float64)
         return self.relu(self.convolve(image))
 
     def convolve(self, image):
@@ -70,21 +68,25 @@ class Conv2d(BaseLayer):
                         )
         return result
 
-    # TODO: make it to return just derivative for weights
-    def update_weights(self, activation_theta, learning_rate):
-        image_dims = self.cached_image.shape
-        theta_size = activation_theta.shape[1]
+    def update_weights(self, layer_cache, learning_rate):
+        average_kernel_weights = self.calculate_average_weights_derivative(layer_cache)
+        self.kernel -= learning_rate * average_kernel_weights
+
+    def calculate_average_weights_derivative(self, layer_cache):
+        image_dims = layer_cache[0][0].shape
+        theta_size = layer_cache[0][1].shape[1]
         width = image_dims[1] - theta_size + 1
         height = image_dims[2] - theta_size + 1
         result = np.zeros(self.kernel.shape)
-        for f in range(0, self.features):
-            for c in range(0, len(self.cached_image)):
-                for i in range(0, width):
-                    for j in range(0, height):
-                        result[f, c, i, j] = np.sum(
-                            np.multiply(
-                                self.cached_image[c, i:i + theta_size, j:j + theta_size],
-                                activation_theta[f]
+        for (image, activation_theta) in layer_cache:
+            for f in range(0, self.features):
+                for c in range(0, len(image)):
+                    for i in range(0, width):
+                        for j in range(0, height):
+                            result[f, c, i, j] += np.sum(
+                                np.multiply(
+                                    image[c, i:i + theta_size, j:j + theta_size],
+                                    activation_theta[f]
+                                )
                             )
-                        )
-        return self.kernel - learning_rate * result
+        return result / len(layer_cache)
