@@ -10,7 +10,7 @@ from layers.cross_entropy import CrossEntropy
 
 class TestBatchEngine(TestCase):
 
-    def test_run(self):
+    def setUp(self) -> None:
         layers = []
         for i in range(1, 4):
             layer = Conv2d(1, 1, 1)
@@ -25,28 +25,25 @@ class TestBatchEngine(TestCase):
             layer.update_weights = MagicMock()
             layers.append(layer)
 
-        loss_function = CrossEntropy()
-        loss_function.loss = self.mock_method([0.1, 0.2])
-        loss_function.delta = self.mock_method([
+        self.loss_function = CrossEntropy()
+        self.loss_function.loss = self.mock_method([0.1, 0.2])
+        self.loss_function.delta = self.mock_method([
             [0.2, -0.3, 0.1],
             [0.5, -0.6, 0.1]
         ])
-        # 1 2 3 -> 1 1 1 | 1 1 1 -> 2 2 2 | 2 2 2 -> 3 3 3
-        # -1 -1 -1 <- -2 -2 -2 | -2 -2 -2 <- -3 -3 -3 | -3 -3 -3 <- 0.2, -0.3, 0.1
-        # l3: (2 2 2) - (0.2 -0.3 0.1)
-        # l2: (1 1 1) - (-3 -3 -3)
-        # l1: (1 2 3) - (-2 -2 -2)
-        images = np.array([
+        self.images = np.array([
             [1, 2, 3],
             [4, 5, 6],
         ])
-        labels = np.array([
+        self.labels = np.array([
             [1, 0, 0],
             [0, 0, 1],
         ])
+        self.layers = layers
 
-        engine = BatchEngine(layers, loss_function)
-        engine.run(images, labels)
+    def test_run_cache_check(self):
+        engine = BatchEngine(self.layers, self.loss_function)
+        engine.run(self.images, self.labels)
 
         cache_exp = list([
             list([
@@ -64,37 +61,62 @@ class TestBatchEngine(TestCase):
         ])
         np.testing.assert_array_equal(cache_exp[0][0], engine.cache[0][0])
 
+    def test_run_cache_forward_check(self):
+        engine = BatchEngine(self.layers, self.loss_function)
+        engine.run(self.images, self.labels)
+
         np.testing.assert_array_equal(np.array([1, 2, 3]),
-                                      self.get_forward_arg(layers[0], 0))
+                                      self.get_forward_arg(self.layers[0], 0))
         np.testing.assert_array_equal(np.array([4, 5, 6]),
-                                      self.get_forward_arg(layers[0], 1))
+                                      self.get_forward_arg(self.layers[0], 1))
         np.testing.assert_array_equal(np.array([1, 1, 1]),
-                                      self.get_forward_arg(layers[1], 0))
+                                      self.get_forward_arg(self.layers[1], 0))
         np.testing.assert_array_equal(np.array([10, 10, 10]),
-                                      self.get_forward_arg(layers[1], 1))
+                                      self.get_forward_arg(self.layers[1], 1))
         np.testing.assert_array_equal(np.array([2, 2, 2]),
-                                      self.get_forward_arg(layers[2], 0))
+                                      self.get_forward_arg(self.layers[2], 0))
         np.testing.assert_array_equal(np.array([20, 20, 20]),
-                                      self.get_forward_arg(layers[2], 1))
+                                      self.get_forward_arg(self.layers[2], 1))
+
+    def test_run_cache_back_check(self):
+        engine = BatchEngine(self.layers, self.loss_function)
+        engine.run(self.images, self.labels)
 
         np.testing.assert_array_equal(np.array([0.2, -0.3, 0.1]),
-                                      self.get_back_arg(layers[2], 0))
+                                      self.get_back_arg(self.layers[2], 0))
         np.testing.assert_array_equal(np.array([0.5, -0.6, 0.1]),
-                                      self.get_back_arg(layers[2], 1))
+                                      self.get_back_arg(self.layers[2], 1))
         np.testing.assert_array_equal(np.array([-3, -3, -3]),
-                                      self.get_back_arg(layers[1], 0))
+                                      self.get_back_arg(self.layers[1], 0))
         np.testing.assert_array_equal(np.array([-30, -30, -30]),
-                                      self.get_back_arg(layers[1], 1))
-        self.assertFalse(layers[0].back.called)
+                                      self.get_back_arg(self.layers[1], 1))
+        self.assertFalse(self.layers[0].back.called)
 
-        # TODO: test loss function
+    # TODO: test loss function
 
-        np.testing.assert_array_equal(
-            [
+    def test_run_cache_update_weights_check(self):
+        engine = BatchEngine(self.layers, self.loss_function)
+        engine.run(self.images, self.labels)
+
+        np.testing.assert_array_equal(list([
                 (np.array([1, 2, 3]), np.array([-2, -2, -2])),
                 (np.array([4, 5, 6]), np.array([-20, -20, -20]))
+            ]),
+            self.get_update_weights_arg(self.layers[0])
+        )
+        np.testing.assert_array_equal(
+            [
+                (np.array([1, 1, 1]), np.array([-3, -3, -3])),
+                (np.array([10, 10, 10]), np.array([-30, -30, -30]))
             ],
-            self.get_update_weights_arg(layers[0])
+            self.get_update_weights_arg(self.layers[1])
+        )
+        np.testing.assert_array_equal(
+            [
+                (np.array([2, 2, 2]), np.array([0.2, -0.3, 0.1])),
+                (np.array([20, 20, 20]), np.array([0.5, -0.6, 0.1]))
+            ],
+            self.get_update_weights_arg(self.layers[2])
         )
 
     def mock_method(self, results):
@@ -112,6 +134,5 @@ class TestBatchEngine(TestCase):
 
     @staticmethod
     def get_update_weights_arg(layer):
-        print(layer.update_weights.call_args)
         args, kwargs = layer.update_weights.call_args
-        return args
+        return args[0]
