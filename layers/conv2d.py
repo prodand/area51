@@ -3,7 +3,6 @@ import numpy as np
 from layers.base_layer import BaseLayer
 
 
-# TODO: add biases
 class Conv2d(BaseLayer):
     def __init__(self, features, kernel_size, channels, values=None, bias=None):
         self.features = features

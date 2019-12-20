@@ -19,24 +19,24 @@ class TestConv2d(TestCase):
 
     def test_convolve(self):
         layer = Conv2d(2, 2, 1,
-                       [1, -1, 1, 2, 1, 0, 0, 2])
+                       [1, -1, 1, 2, 1, 0, 0, 2], [2, 3])
         image = np.arange(1, 10).reshape((1, 3, 3))
         res = layer.convolve(image)
         exp = np.array(([
-            [[13., 16.], [22., 25.]],
-            [[11., 14.], [20., 23.]]
+            [[15., 18.], [24., 27.]],
+            [[14., 17.], [23., 26.]]
         ]))
         np.testing.assert_array_equal(res, exp)
 
     def test_convolve_multi_channels(self):
         layer = Conv2d(3, 1, 2,
-                       [0.5, 0.5, 2, 2, 1.5, 1.5])
+                       [0.5, 0.5, 2, 2, 1.5, 1.5], [1, 1, 1])
         image = np.arange(1, 9).reshape((2, 2, 2))
         res = layer.convolve(image)
         exp = np.array(([
-            [[3., 4.], [5., 6.]],
-            [[12., 16.], [20., 24.]],
-            [[9., 12.], [15., 18.]]
+            [[3 + 1., 4. + 1], [5. + 1, 6. + 1]],
+            [[12. + 1, 16. + 1], [20. + 1, 24. + 1]],
+            [[9. + 1, 12. + 1], [15. + 1, 18. + 1]]
         ]))
         np.testing.assert_array_equal(res, exp)
 
