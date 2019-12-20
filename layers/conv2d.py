@@ -5,7 +5,7 @@ from layers.base_layer import BaseLayer
 
 # TODO: add biases
 class Conv2d(BaseLayer):
-    def __init__(self, features, kernel_size, channels, values=None):
+    def __init__(self, features, kernel_size, channels, values=None, bias=None):
         self.features = features
         self.kernel_size = kernel_size
         self.channels = channels
@@ -14,6 +14,10 @@ class Conv2d(BaseLayer):
         else:
             self.kernel = np.array(values, dtype=np.float64) \
                 .reshape((features, channels, kernel_size, kernel_size))
+        if bias is None:
+            self.bias = np.random.rand(features, 1)
+        else:
+            self.bias = np.array(bias, dtype=np.float64).reshape((features, 1))
 
     def forward(self, image):
         if image.ndim != 3:
@@ -33,7 +37,7 @@ class Conv2d(BaseLayer):
                             image[0:, i:i + self.kernel_size, j:j + self.kernel_size],
                             self.kernel[c]
                         )
-                    )
+                    ) + self.bias[c]
         return result
 
     def relu(self, image):
@@ -71,7 +75,9 @@ class Conv2d(BaseLayer):
 
     def update_weights(self, layer_cache, learning_rate):
         average_kernel_weights = self.calculate_average_weights_derivative(layer_cache)
+        average_biases = self.calculate_average_biases(layer_cache)
         self.kernel -= learning_rate * average_kernel_weights
+        self.bias -= learning_rate * average_biases
 
     def calculate_average_weights_derivative(self, layer_cache):
         image_dims = layer_cache[0][0].shape
@@ -91,3 +97,11 @@ class Conv2d(BaseLayer):
                                 )
                             )
         return result / len(layer_cache)
+
+    def calculate_average_biases(self, layer_cache):
+        biases_sum = np.zeros(self.bias.shape)
+        for (image, activation_theta) in layer_cache:
+            for f in range(0, self.features):
+                biases_sum[f] += np.sum(activation_theta[f])
+
+        return biases_sum / len(layer_cache)

@@ -52,8 +52,6 @@ class TestConv2d(TestCase):
 
         theta = np.array((1., 0., 1., 0., 2., 0., 2., 0.)).reshape((2, 2, 2))
         res = layer.calculate_prev_layer_error(theta)
-        # 1 -1 0 , 2 1 0, 1 2 0
-        # 2  4 0 , 4 6 0, 2 2 0
         exp = np.array([3, 3, 0, 6, 7, 0, 3, 4, 0]).reshape((1, 3, 3))
         np.testing.assert_allclose(res, exp)
 
@@ -161,3 +159,33 @@ class TestConv2d(TestCase):
             4.5, 2., 4., 2.5
         ]).reshape((2, 1, 2, 2))
         np.testing.assert_allclose(res, exp)
+
+    def test_calculate_average_biases(self):
+        layer = Conv2d(2, 2, 1, [
+            1, 1, 1, 1,
+            1, 1, 1, 1
+        ])
+        image1 = np.array((
+            1, 2, 1, 2, 3, 1, 2, 1, 1
+        )).reshape((1, 3, 3))
+        image2 = np.array((
+            2, 1, 1, 2, 1, 1, 2, 2, 1
+        )).reshape((1, 3, 3))
+
+        theta1 = np.array(([
+            [[1, 2], [1, 3]],
+            [[-1, 4], [2, 1]],
+        ])).reshape((2, 2, 2))
+
+        theta2 = np.array(([
+            [[2, 1], [5, 1]],
+            [[1, 2], [5, 1]],
+        ])).reshape((2, 2, 2))
+
+        cache_values = [
+            (image1, theta1),
+            (image2, theta2)
+        ]
+        res = layer.calculate_average_biases(cache_values)
+        exp_bias = np.array([8.0, 7.5]).reshape((2, 1))
+        np.testing.assert_allclose(res, exp_bias)
