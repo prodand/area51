@@ -41,7 +41,7 @@ class TestBatchEngine(TestCase):
         ])
         self.layers = layers
 
-    def test_run_cache_check(self):
+    def test_run_batch_cache_check(self):
         engine = BatchEngine(self.layers, self.loss_function)
         engine.run(self.images, self.labels)
 
@@ -61,7 +61,7 @@ class TestBatchEngine(TestCase):
         ])
         np.testing.assert_array_equal(cache_exp[0][0], engine.cache[0][0])
 
-    def test_run_cache_forward_check(self):
+    def test_run_batch_cache_forward_check(self):
         engine = BatchEngine(self.layers, self.loss_function)
         engine.run(self.images, self.labels)
 
@@ -78,7 +78,7 @@ class TestBatchEngine(TestCase):
         np.testing.assert_array_equal(np.array([20, 20, 20]),
                                       self.get_forward_arg(self.layers[2], 1))
 
-    def test_run_cache_back_check(self):
+    def test_run_batch_cache_back_check(self):
         engine = BatchEngine(self.layers, self.loss_function)
         engine.run(self.images, self.labels)
 
@@ -94,7 +94,7 @@ class TestBatchEngine(TestCase):
 
     # TODO: test loss function
 
-    def test_run_cache_update_weights_check(self):
+    def test_run_batch_cache_update_weights_check(self):
         engine = BatchEngine(self.layers, self.loss_function)
         engine.run(self.images, self.labels)
 
@@ -118,6 +118,26 @@ class TestBatchEngine(TestCase):
             ],
             self.get_update_weights_arg(self.layers[2])
         )
+
+    def test_run_one_iteration(self):
+        layers = []
+        engine = BatchEngine(layers, CrossEntropy(), batch_size=15)
+        engine.run_batch = MagicMock()
+
+        engine.run(np.zeros((210, 1)), np.zeros((210, 1)))
+
+        self.assertEqual(engine.run_batch.call_count, 14)
+
+    def test_run_stop_in_the_middle_second_iteration(self):
+        layers = []
+        engine = BatchEngine(layers, CrossEntropy(), batch_size=15)
+        returns = [False for i in range(28)]
+        returns[18] = True
+        engine.run_batch = MagicMock(side_effect=returns)
+
+        engine.run(np.zeros((210, 1)), np.zeros((210, 1)))
+
+        self.assertEqual(engine.run_batch.call_count, 19)
 
     def mock_method(self, results):
         return MagicMock(side_effect=results)

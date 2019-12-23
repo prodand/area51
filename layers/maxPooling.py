@@ -1,7 +1,9 @@
 import numpy as np
 
+from layers.base_layer import BaseLayer
 
-class MaxPooling:
+
+class MaxPooling(BaseLayer):
     def __init__(self, input_shape, size, stride):
         self.input_shape = input_shape
         self.size = size
@@ -37,3 +39,5 @@ class MaxPooling:
                     indexes = self.mask[c, i, j]
                     result[c, indexes[0], indexes[1]] = activation_theta[c, i, j]
         return result
+
+    def update_weights(self, layer_cache, learning_rate):

@@ -1,11 +1,23 @@
 class BatchEngine:
 
-    def __init__(self, layers, loss_function):
+    def __init__(self, layers, loss_function, batch_size=32):
         self.loss_fn = loss_function
         self.layers = layers
+        self.batch_size = batch_size
         self.cache = list()
 
     def run(self, images, labels):
+        batches_count = int(len(images) / self.batch_size)
+        learned = False
+        while not learned:
+            for batch_index in range(0, batches_count):
+                start = batch_index * self.batch_size
+                end = (batch_index + 1) * self.batch_size
+                learned = self.run_batch(images[start:end], labels[start:end])
+                if learned:
+                    break
+
+    def run_batch(self, images, labels):
         total_loss = 0
         for layer in self.layers:
             self.cache.append(list())
@@ -33,5 +45,10 @@ class BatchEngine:
                 self.cache[layer_index].append((saved_image, theta))
                 layer_index += 1
 
+        if total_loss < 0.01:
+            return True
+
         for (layer, cache) in zip(self.layers, self.cache):
             layer.update_weights(cache, 0.1)
+
+        return False
