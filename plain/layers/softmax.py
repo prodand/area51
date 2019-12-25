@@ -1,6 +1,6 @@
 import numpy as np
 
-from layers.base_layer import BaseLayer
+from plain.layers.base_layer import BaseLayer
 
 
 class Softmax(BaseLayer):
@@ -15,4 +15,3 @@ class Softmax(BaseLayer):
 
     def update_weights(self, layer_cache, learning_rate):
         pass
-

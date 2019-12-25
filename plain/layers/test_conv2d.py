@@ -2,7 +2,7 @@ from unittest import TestCase
 
 import numpy as np
 
-from layers.conv2d import Conv2d
+from plain.layers.conv2d import Conv2d
 
 
 class TestConv2d(TestCase):

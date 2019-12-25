@@ -3,9 +3,9 @@ from unittest.mock import MagicMock, Mock
 
 import numpy as np
 
-from common.batch_engine import BatchEngine
-from layers.conv2d import Conv2d
-from layers.cross_entropy import CrossEntropy
+from plain.common.batch_engine import BatchEngine
+from plain.layers.conv2d import Conv2d
+from plain.layers.cross_entropy import CrossEntropy
 
 
 class TestBatchEngine(TestCase):

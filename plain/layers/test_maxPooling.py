@@ -2,7 +2,7 @@ from unittest import TestCase
 
 import numpy as np
 
-from layers.maxPooling import MaxPooling
+from plain.layers.maxPooling import MaxPooling
 
 
 class TestMaxPool(TestCase):

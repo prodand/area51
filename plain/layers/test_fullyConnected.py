@@ -2,7 +2,7 @@ from unittest import TestCase
 
 import numpy as np
 
-from layers.fully_connected import FullyConnected
+from plain.layers.fully_connected import FullyConnected
 
 
 class TestFullyConnected(TestCase):

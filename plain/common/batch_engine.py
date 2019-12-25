@@ -1,5 +1,3 @@
-import matplotlib.pyplot as plt
-
 class BatchEngine:
 
     def __init__(self, layers, loss_function, batch_size=32):

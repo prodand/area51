@@ -2,7 +2,7 @@ from unittest import TestCase
 
 import numpy as np
 
-from layers.flatten import Flatten
+from plain.layers.flatten import Flatten
 
 
 class TestFlatten(TestCase):

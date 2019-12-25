@@ -2,7 +2,7 @@ from unittest import TestCase
 
 import numpy as np
 
-from layers.cross_entropy import CrossEntropy
+from plain.layers.cross_entropy import CrossEntropy
 
 
 class TestCrossEntropy(TestCase):

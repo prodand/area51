@@ -1,6 +1,6 @@
 import numpy as np
 
-from layers.base_layer import BaseLayer
+from plain.layers.base_layer import BaseLayer
 
 
 class MaxPooling(BaseLayer):
@@ -47,4 +47,3 @@ class MaxPooling(BaseLayer):
 
     def __str__(self) -> str:
         return '%d x %d x %d' % self.input_shape
-

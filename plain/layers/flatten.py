@@ -1,4 +1,4 @@
-from layers.base_layer import BaseLayer
+from plain.layers.base_layer import BaseLayer
 
 
 class Flatten(BaseLayer):

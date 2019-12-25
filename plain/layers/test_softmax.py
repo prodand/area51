@@ -2,7 +2,7 @@ from unittest import TestCase
 
 import numpy as np
 
-from layers.softmax import Softmax
+from plain.layers.softmax import Softmax
 
 
 class TestSoftmax(TestCase):
