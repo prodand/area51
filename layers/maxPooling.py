@@ -4,7 +4,7 @@ from layers.base_layer import BaseLayer
 
 
 class MaxPooling(BaseLayer):
-    def __init__(self, input_shape, size, stride):
+    def __init__(self, input_shape: tuple, size, stride):
         self.input_shape = input_shape
         self.size = size
         self.stride = stride
@@ -13,6 +13,8 @@ class MaxPooling(BaseLayer):
     def forward(self, image):
         if image.ndim != 3:
             raise RuntimeError('Image must be 3 dimensional')
+        if image.shape != self.input_shape:
+            raise RuntimeError('Image must match configured input shape')
         self.mask = np.zeros(image.shape)
         dims = image.shape
         result_width = int((dims[1] - self.size) / self.stride + 1)
@@ -41,3 +43,8 @@ class MaxPooling(BaseLayer):
         return result
 
     def update_weights(self, layer_cache, learning_rate):
+        pass
+
+    def __str__(self) -> str:
+        return '%d x %d x %d' % self.input_shape
+

@@ -8,8 +8,8 @@ class FullyConnected(BaseLayer):
     def __init__(self, input_size, output_size):
         self.input_size = input_size
         self.output_size = output_size
-        self.weights = np.random.rand(output_size, input_size)
-        self.bias = np.random.rand(output_size, 1)
+        self.weights = np.random.randn(output_size, input_size) * 0.1
+        self.bias = np.random.randn(output_size, 1) * 0.1
 
     def forward(self, image_vector):
         return self.weights.dot(image_vector) + self.bias
@@ -22,7 +22,7 @@ class FullyConnected(BaseLayer):
         derivative_weights = np.zeros(self.weights.shape)
         derived_biases = np.zeros(self.bias.shape)
         for (image_vector, activation_theta) in layer_cache:
-            derivative_weights += activation_theta.T.dot(image_vector)
-            derived_biases += activation_theta.T
+            derivative_weights += activation_theta.dot(image_vector.T)
+            derived_biases += activation_theta
         self.weights = self.weights - learning_rate * (derivative_weights / len(layer_cache))
         self.bias = self.bias - learning_rate * (derived_biases / len(layer_cache))

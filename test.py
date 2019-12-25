@@ -1,5 +1,14 @@
 import numpy as np
+import matplotlib.pyplot as plt
 
-res = np.argmax([[2, 1], [0, 4]], axis=None)
-val = np.unravel_index(res, (2, 2))
-print(val)
+res = np.array([np.arange(1, 10).reshape((3, 3)) for i in range(1, 30)])
+
+plt.ion()
+
+line, = plt.plot([], [], 'bo')
+# print(type(lines[0]))
+# line = lines[0]
+for i in range(1, 101):
+    line.set_xdata(np.append(line.get_xdata(), i))
+    line.set_ydata(np.append(line.get_ydata(), i * i))
+    plt.draw()

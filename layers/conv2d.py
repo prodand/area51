@@ -9,12 +9,12 @@ class Conv2d(BaseLayer):
         self.kernel_size = kernel_size
         self.channels = channels
         if values is None:
-            self.kernel = np.random.rand(features, channels, kernel_size, kernel_size)
+            self.kernel = np.random.randn(features, channels, kernel_size, kernel_size) * 0.1
         else:
             self.kernel = np.array(values, dtype=np.float64) \
                 .reshape((features, channels, kernel_size, kernel_size))
         if bias is None:
-            self.bias = np.random.rand(features, 1)
+            self.bias = np.random.randn(features, 1)  * 0.1
         else:
             self.bias = np.array(bias, dtype=np.float64).reshape((features, 1))
 
@@ -104,3 +104,6 @@ class Conv2d(BaseLayer):
                 biases_sum[f] += np.sum(activation_theta[f])
 
         return biases_sum / len(layer_cache)
+
+    def __str__(self) -> str:
+        return '%d x %d x %d' % (self.features, self.channels, self.kernel_size)

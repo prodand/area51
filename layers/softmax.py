@@ -1,7 +1,9 @@
 import numpy as np
 
+from layers.base_layer import BaseLayer
 
-class Softmax:
+
+class Softmax(BaseLayer):
 
     def forward(self, input):
         input_shift = input - np.max(input)
@@ -10,3 +12,7 @@ class Softmax:
 
     def back(self, theta):
         return theta
+
+    def update_weights(self, layer_cache, learning_rate):
+        pass
+

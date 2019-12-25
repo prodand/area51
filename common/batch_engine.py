@@ -1,3 +1,5 @@
+import matplotlib.pyplot as plt
+
 class BatchEngine:
 
     def __init__(self, layers, loss_function, batch_size=32):
@@ -10,10 +12,12 @@ class BatchEngine:
         batches_count = int(len(images) / self.batch_size)
         learned = False
         while not learned:
+            print('New Round')
             for batch_index in range(0, batches_count):
                 start = batch_index * self.batch_size
                 end = (batch_index + 1) * self.batch_size
-                learned = self.run_batch(images[start:end], labels[start:end])
+                learned, loss = self.run_batch(images[start:end], labels[start:end])
+                print('Loss: ' + str(loss))
                 if learned:
                     break
 
@@ -46,9 +50,9 @@ class BatchEngine:
                 layer_index += 1
 
         if total_loss < 0.01:
-            return True
+            return True, total_loss
 
         for (layer, cache) in zip(self.layers, self.cache):
-            layer.update_weights(cache, 0.1)
+            layer.update_weights(cache, 0.3)
 
-        return False
+        return False, total_loss
