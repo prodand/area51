@@ -1,11 +1,12 @@
 from keras.datasets import mnist
 import numpy as np
 from cnn import Cnn
-from layers.conv2d import Conv2d
-from layers.flatten import Flatten
-from layers.fully_connected import FullyConnected
-from layers.maxPooling import MaxPooling
-from layers.softmax import Softmax
+from plain.layers.flatten import Flatten
+from plain.layers.fully_connected import FullyConnected
+from plain.layers.maxPooling import MaxPooling
+from plain.layers.softmax import Softmax
+# from plain.layers.conv2d import Conv2d
+from vectorized.layers.conv2d import Conv2d
 
 (X_train, y_train), (X_test, y_test) = mnist.load_data()
 
@@ -19,7 +20,7 @@ for index, x in enumerate(y_train):
 images = X_train.reshape((X_train.shape[0], 1, X_train.shape[1], X_train.shape[2])) / 255
 test_images = X_test.reshape((X_test.shape[0], 1, X_test.shape[1], X_test.shape[2])) / 255
 
-cnn = Cnn(600)
+cnn = Cnn(60)
 cnn.add_layer(Conv2d(8, 5, 1))
 cnn.add_layer(MaxPooling((8, 24, 24), 2, 2))
 cnn.add_layer(Conv2d(16, 3, 8))

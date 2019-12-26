@@ -1,3 +1,6 @@
+import time
+
+
 class BatchEngine:
 
     def __init__(self, layers, loss_function, batch_size=32):
@@ -12,17 +15,21 @@ class BatchEngine:
         while not learned:
             print('New Round')
             for batch_index in range(0, batches_count):
+                start_t = time.time()
                 start = batch_index * self.batch_size
                 end = (batch_index + 1) * self.batch_size
                 learned, loss = self.run_batch(images[start:end], labels[start:end])
+                end_t = time.time()
+                print('Time elapsed: %s' % (end_t - start_t))
                 print('Loss: ' + str(loss))
                 if learned:
                     break
 
     def run_batch(self, images, labels):
         total_loss = 0
+        layers_cache = list()
         for layer in self.layers:
-            self.cache.append(list())
+            layers_cache.append(list())
 
         for index, image in enumerate(images, start=0):
             forward_activations = [image]
@@ -44,13 +51,13 @@ class BatchEngine:
 
             layer_index = 0
             for (saved_image, theta) in zip(forward_activations, reversed(activation_thetas)):
-                self.cache[layer_index].append((saved_image, theta))
+                layers_cache[layer_index].append((saved_image, theta))
                 layer_index += 1
 
         if total_loss < 0.01:
             return True, total_loss
 
-        for (layer, cache) in zip(self.layers, self.cache):
+        for (layer, cache) in zip(self.layers, layers_cache):
             layer.update_weights(cache, 0.3)
 
         return False, total_loss

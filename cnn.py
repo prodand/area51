@@ -1,7 +1,7 @@
 import numpy as np
 
-from common.batch_engine import BatchEngine
-from layers.cross_entropy import CrossEntropy
+from plain.common.batch_engine import BatchEngine
+from plain.layers.cross_entropy import CrossEntropy
 
 
 class Cnn:

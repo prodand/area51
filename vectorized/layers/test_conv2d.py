@@ -189,3 +189,8 @@ class TestConv2d(TestCase):
         res = layer.calculate_average_biases(cache_values)
         exp_bias = np.array([8.0, 7.5]).reshape((2, 1))
         np.testing.assert_allclose(res, exp_bias)
+
+    def test_img2vec(self):
+        layer = Conv2d(1, 2, 2)
+        image = np.arange(1, 33).reshape((2, 4, 4))
+        res = layer.img2vec(image)
