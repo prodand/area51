@@ -12,7 +12,7 @@ class FullyConnected(BaseLayer):
         self.bias = np.random.randn(output_size, 1) * 0.1
 
     def forward(self, image_vector):
-        return self.weights.dot(image_vector) + self.bias
+        return self.relu(self.weights.dot(image_vector) + self.bias)
 
     def back(self, activation_theta):
         prev_layer_error = self.weights.T.dot(activation_theta)
@@ -26,3 +26,6 @@ class FullyConnected(BaseLayer):
             derived_biases += activation_theta
         self.weights = self.weights - learning_rate * (derivative_weights / len(layer_cache))
         self.bias = self.bias - learning_rate * (derived_biases / len(layer_cache))
+
+    def relu(self, image):
+        return np.maximum(image, 0)
