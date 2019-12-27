@@ -20,7 +20,7 @@ for index, x in enumerate(y_train):
 images = X_train.reshape((X_train.shape[0], 1, X_train.shape[1], X_train.shape[2])) / 255
 test_images = X_test.reshape((X_test.shape[0], 1, X_test.shape[1], X_test.shape[2])) / 255
 
-cnn = Cnn(60)
+cnn = Cnn(600)
 cnn.add_layer(Conv2d(8, 5, 1))
 cnn.add_layer(MaxPooling((8, 24, 24), 2, 2))
 cnn.add_layer(Conv2d(16, 3, 8))

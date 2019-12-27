@@ -9,12 +9,13 @@ class Conv2d(BaseLayer):
         self.kernel_size = kernel_size
         self.channels = channels
         if values is None:
-            self.kernel = np.random.randn(features, channels, kernel_size, kernel_size) * 0.1
+            n = kernel_size * kernel_size * channels
+            self.kernel = np.random.randn(features, channels, kernel_size, kernel_size) * (2 / np.sqrt(n))
         else:
             self.kernel = np.array(values, dtype=np.float64) \
                 .reshape((features, channels, kernel_size, kernel_size))
         if bias is None:
-            self.bias = np.random.randn(features, 1)  * 0.1
+            self.bias = np.random.randn(features, 1) * (2 / np.sqrt(features))
         else:
             self.bias = np.array(bias, dtype=np.float64).reshape((features, 1))
 
