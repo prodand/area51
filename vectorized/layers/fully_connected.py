@@ -5,7 +5,7 @@ from plain.layers.base_layer import BaseLayer
 
 class FullyConnected(BaseLayer):
 
-    def __init__(self, input_size, output_size):
+    def __init__(self, input_size, output_size, weights=None, bias=None):
         self.input_size = input_size
         self.output_size = output_size
         self.weights = np.random.randn(output_size, input_size) * (2 / np.sqrt(input_size))
@@ -35,3 +35,18 @@ class FullyConnected(BaseLayer):
 
     def relu(self, image):
         return np.maximum(image, 0)
+
+    def save(self, folder: str):
+        weights_file_name = "/fc_weights_%s" % self.input_size
+        np.save(folder + weights_file_name, self.weights)
+        bias_file_name = "/fc_bias_%s" % self.output_size
+        np.save(folder + bias_file_name, self.bias)
+        return "%s,%s" % (weights_file_name, bias_file_name)
+
+    @staticmethod
+    def load(folder, files):
+        parts = files.split(",")
+        weights = np.load(folder + parts[0] + ".npy")
+        bias = np.load(folder + parts[1] + ".npy")
+        return FullyConnected(weights.shape[1], weights.shape[0],
+                              weights, bias)

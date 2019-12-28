@@ -47,3 +47,18 @@ class MaxPooling(BaseLayer):
 
     def __str__(self) -> str:
         return '%d x %d x %d' % self.input_shape
+
+    def save(self, folder: str):
+        file_name = "/mp_%s_%s_%s" % self.input_shape
+        np.save(folder + file_name, np.array([
+            self.input_shape[0],
+            self.input_shape[1],
+            self.input_shape[2],
+            self.size,
+            self.stride]))
+        return file_name
+
+    @staticmethod
+    def load(folder, file):
+        arr = np.load(folder + file + ".npy")
+        return MaxPooling((arr[0], arr[1], arr[2]), arr[3], arr[4])

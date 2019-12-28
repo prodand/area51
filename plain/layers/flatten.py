@@ -1,3 +1,5 @@
+import numpy as np
+
 from plain.layers.base_layer import BaseLayer
 
 
@@ -17,3 +19,13 @@ class Flatten(BaseLayer):
 
     def update_weights(self, layer_cache, learning_rate):
         pass
+
+    def save(self, folder: str):
+        file_name = "/flatten_%s_%s_%s" % self.shape
+        np.save(folder + file_name, np.array([self.shape[0], self.shape[1], self.shape[2]]))
+        return file_name
+
+    @staticmethod
+    def load(folder, file):
+        arr = np.load(folder + file + ".npy")
+        return Flatten((arr[0], arr[1], arr[2]))

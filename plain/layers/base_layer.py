@@ -14,3 +14,6 @@ class BaseLayer(ABC):
     @abstractmethod
     def update_weights(self, layer_cache, learning_rate):
         ...
+
+    def save(self, folder: str):
+        return ""

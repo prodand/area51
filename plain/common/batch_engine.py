@@ -85,6 +85,7 @@ class BatchEngine:
                 layers_cache[layer_index].append((saved_image, theta))
                 layer_index += 1
 
+        total_loss = total_loss / len(images)
         if total_loss < 0.01:
             return True, total_loss
 

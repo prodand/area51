@@ -1,6 +1,6 @@
 import numpy as np
 
-from vectorized.layers.base_layer import BaseLayer
+from plain.layers.base_layer import BaseLayer
 
 
 class Conv2d(BaseLayer):
@@ -9,12 +9,12 @@ class Conv2d(BaseLayer):
         self.kernel_size = kernel_size
         self.channels = channels
         if values is None:
-            self.kernel = np.random.randn(features, channels, kernel_size, kernel_size) * 0.1
+            self.kernel = np.random.normal(0.0, 0.5, size=(features, channels, kernel_size, kernel_size)) * 0.1
         else:
             self.kernel = np.array(values, dtype=np.float64) \
                 .reshape((features, channels, kernel_size, kernel_size))
         if bias is None:
-            self.bias = np.random.randn(features, 1) * 0.1
+            self.bias = np.random.normal(0.0, 0.5, size=(features, 1)) * 0.1
         else:
             self.bias = np.array(bias, dtype=np.float64).reshape((features, 1))
 
@@ -112,3 +112,18 @@ class Conv2d(BaseLayer):
 
     def __str__(self) -> str:
         return '%d x %d x %d' % (self.features, self.channels, self.kernel_size)
+
+    def save(self, folder: str):
+        file_name = "/conv_%s_%s_%s_%s" % (self.features, self.channels, self.kernel_size, self.kernel_size)
+        np.save(folder + file_name, self.kernel)
+        bias_file = "/conv_bias_%s_%s_%s_%s" % (self.features, self.channels, self.kernel_size, self.kernel_size)
+        np.save(folder + bias_file, self.bias)
+        return "%s,%s" % (file_name, bias_file)
+
+    @staticmethod
+    def load(folder, files):
+        parts = files.split(",")
+        kernels = np.load(folder + parts[0] + ".npy")
+        bias = np.load(folder + parts[1] + ".npy")
+        return Conv2d(kernels.shape[0], kernels.shape[2],
+                      kernels.shape[1], kernels, bias)
