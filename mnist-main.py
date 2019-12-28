@@ -5,7 +5,6 @@ from plain.layers.flatten import Flatten
 from plain.layers.fully_connected import FullyConnected
 from plain.layers.maxPooling import MaxPooling
 from plain.layers.softmax import Softmax
-# from plain.layers.conv2d import Conv2d
 from vectorized.layers.conv2d import Conv2d
 
 (X_train, y_train), (X_test, y_test) = mnist.load_data()
@@ -28,12 +27,22 @@ cnn = Cnn(600)
 # cnn.add_layer(Flatten((16, 5, 5)))
 # cnn.add_layer(FullyConnected(400, 10))
 # cnn.add_layer(Softmax())
+
+# cnn.add_layer(Conv2d(16, 5, 1))
+# cnn.add_layer(MaxPooling((16, 24, 24), 2, 2))
+# cnn.add_layer(Conv2d(32, 3, 16))
+# cnn.add_layer(MaxPooling((32, 10, 10), 2, 2))
+# cnn.add_layer(Flatten((32, 5, 5)))
+# cnn.add_layer(FullyConnected(800, 10))
+# cnn.add_layer(Softmax())
+
 cnn.add_layer(Conv2d(16, 5, 1))
 cnn.add_layer(MaxPooling((16, 24, 24), 2, 2))
-cnn.add_layer(Conv2d(32, 3, 16))
-cnn.add_layer(MaxPooling((32, 10, 10), 2, 2))
-cnn.add_layer(Flatten((32, 5, 5)))
-cnn.add_layer(FullyConnected(800, 10))
+cnn.add_layer(Conv2d(32, 5, 16))
+cnn.add_layer(MaxPooling((32, 8, 8), 2, 2))
+cnn.add_layer(Flatten((32, 4, 4)))
+cnn.add_layer(FullyConnected(512, 100))
+cnn.add_layer(FullyConnected(100, 10))
 cnn.add_layer(Softmax())
 print('Start learning')
 cnn.learn(images, labels)

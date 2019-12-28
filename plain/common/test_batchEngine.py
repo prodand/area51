@@ -4,8 +4,8 @@ from unittest.mock import MagicMock, Mock
 import numpy as np
 
 from plain.common.batch_engine import BatchEngine
-from plain.layers.conv2d import Conv2d
 from plain.layers.cross_entropy import CrossEntropy
+from vectorized.layers.conv2d import Conv2d
 
 
 class TestBatchEngine(TestCase):
@@ -42,7 +42,7 @@ class TestBatchEngine(TestCase):
         self.layers = layers
 
     def test_run_batch_cache_check(self):
-        engine = BatchEngine(self.layers, self.loss_function)
+        engine = BatchEngine(self.layers, self.loss_function, 0.1)
         engine.run(self.images, self.labels)
 
         cache_exp = list([
@@ -62,7 +62,7 @@ class TestBatchEngine(TestCase):
         np.testing.assert_array_equal(cache_exp[0][0], engine.cache[0][0])
 
     def test_run_batch_cache_forward_check(self):
-        engine = BatchEngine(self.layers, self.loss_function)
+        engine = BatchEngine(self.layers, self.loss_function, 0.1)
         engine.run(self.images, self.labels)
 
         np.testing.assert_array_equal(np.array([1, 2, 3]),

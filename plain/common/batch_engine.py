@@ -1,12 +1,15 @@
+import time
+
 import matplotlib.pyplot as plt
 
 
 class BatchEngine:
 
-    def __init__(self, layers, loss_function, batch_size=32):
+    def __init__(self, layers, loss_function, learning_rate, batch_size=32):
         self.loss_fn = loss_function
         self.layers = layers
         self.batch_size = batch_size
+        self.learning_rate = learning_rate
         self.cache = list()
         self.folds_number = 10
         self.train_plt_loss = []
@@ -28,9 +31,10 @@ class BatchEngine:
                 for batch_index in range(0, batches_count):
                     start = batch_index * self.batch_size
                     end = (batch_index + 1) * self.batch_size
+                    start_time = time.time()
                     learned, loss = self.run_batch(train_images[start:end], train_labels[start:end])
                     train_loss += loss
-                    print('%s Loss: %s' % (epoch, str(loss)))
+                    print('%s Loss: %s [%s]' % (epoch, str(loss), (time.time() - start_time)))
                     if learned:
                         break
 
@@ -85,7 +89,7 @@ class BatchEngine:
             return True, total_loss
 
         for (layer, cache) in zip(self.layers, layers_cache):
-            layer.update_weights(cache, 0.07)
+            layer.update_weights(cache, self.learning_rate)
 
         return False, total_loss
 

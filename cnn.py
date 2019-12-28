@@ -17,7 +17,7 @@ class Cnn:
 
     # images as (image_index x channels x width x heights)
     def learn(self, images, labels):
-        batch_engine = BatchEngine(self.layers, self.loss_function, self.batch_size)
+        batch_engine = BatchEngine(self.layers, self.loss_function, 0.07, self.batch_size)
         batch_engine.run(images, labels)
 
     def predict(self, image):
