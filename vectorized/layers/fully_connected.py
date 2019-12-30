@@ -8,8 +8,14 @@ class FullyConnected(BaseLayer):
     def __init__(self, input_size, output_size, weights=None, bias=None):
         self.input_size = input_size
         self.output_size = output_size
-        self.weights = np.random.randn(output_size, input_size) * (2 / np.sqrt(input_size))
-        self.bias = np.random.randn(output_size, 1) * (2 / np.sqrt(output_size))
+        if weights is None:
+            self.weights = np.random.normal(0.0, 0.8, (output_size, input_size)) * (2 / np.sqrt(input_size))
+        else:
+            self.weights = weights
+        if bias is None:
+            self.bias = np.random.normal(0.0, 0.5, (output_size, 1)) * (2 / np.sqrt(output_size))
+        else:
+            self.bias = bias
 
     def forward(self, image_vector):
         return self.relu(self.weights.dot(image_vector) + self.bias)

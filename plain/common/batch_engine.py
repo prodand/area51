@@ -1,6 +1,7 @@
 import time
 
 import matplotlib.pyplot as plt
+import numpy as np
 
 
 class BatchEngine:
@@ -32,31 +33,34 @@ class BatchEngine:
                     start = batch_index * self.batch_size
                     end = (batch_index + 1) * self.batch_size
                     start_time = time.time()
-                    learned, loss = self.run_batch(train_images[start:end], train_labels[start:end])
+                    loss = self.run_batch(train_images[start:end], train_labels[start:end], epoch)
                     train_loss += loss
-                    print('%s Loss: %s [%s]' % (epoch, str(loss), (time.time() - start_time)))
-                    if learned:
-                        break
+                    print('%s Loss: %s [%s]' % (epoch, str(loss / self.batch_size), (time.time() - start_time)))
 
             train_loss = self.average_train_loss(images, train_loss)
-            validation_loss = self.validate(self.extract_fold(images, excluded_fold),
+            validation_loss, percent = self.validate(self.extract_fold(images, excluded_fold),
                                             self.extract_fold(labels, excluded_fold))
-            self.plot(train_loss, validation_loss)
+            # self.plot(train_loss, validation_loss)
+            print("Val: %s; Train: %s; Epoch: %s; Percent: %s" % (validation_loss, train_loss, epoch, percent))
             excluded_fold = excluded_fold + 1 if excluded_fold < self.folds_number else 0
             epoch += 1
+            learned = train_loss < 0.01
 
     def validate(self, images, labels):
         total_loss = 0
+        correct_answers = 0
         for index, image in enumerate(images, start=0):
             convolved_image = image
             for layer in self.layers:
                 convolved_image = layer.forward(convolved_image)
+            actual = np.argmax(image)
+            correct_answers += labels[index][actual]
             error = self.loss_fn.loss(convolved_image, labels[index])
             total_loss += error
 
-        return total_loss / len(images)
+        return total_loss / len(images), correct_answers / len(images)
 
-    def run_batch(self, images, labels):
+    def run_batch(self, images, labels, epoch = 1):
         total_loss = 0
         layers_cache = list()
         for layer in self.layers:
@@ -85,14 +89,10 @@ class BatchEngine:
                 layers_cache[layer_index].append((saved_image, theta))
                 layer_index += 1
 
-        total_loss = total_loss / len(images)
-        if total_loss < 0.01:
-            return True, total_loss
-
         for (layer, cache) in zip(self.layers, layers_cache):
-            layer.update_weights(cache, self.learning_rate)
+            layer.update_weights(cache, self.learning_rate / epoch)
 
-        return False, total_loss
+        return total_loss
 
     def extract_fold(self, images, fold: int):
         fold_size = int(len(images) / self.folds_number)

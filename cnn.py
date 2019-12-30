@@ -28,8 +28,9 @@ class Cnn:
         :param labels: expected result in vector form
         :return:
         """
-        batch_engine = BatchEngine(self.layers, self.loss_function, 0.07, self.batch_size)
+        batch_engine = BatchEngine(self.layers, self.loss_function, 0.1, self.batch_size)
         batch_engine.run(images, labels)
+        self.save()
 
     def predict(self, image):
         for layer in self.layers:
