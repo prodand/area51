@@ -11,7 +11,7 @@ from plain.layers.softmax import Softmax
 from vectorized.layers.conv2d import Conv2d
 from vectorized.layers.fully_connected import FullyConnected
 
-cnn = Cnn(300)
+cnn = Cnn(300, 0.07)
 
 
 def keyboard_interrupt_handler(signal, frame):
@@ -31,12 +31,21 @@ def main():
     images = X_train.reshape((X_train.shape[0], 1, X_train.shape[1], X_train.shape[2])) / 255
     test_images = X_test.reshape((X_test.shape[0], 1, X_test.shape[1], X_test.shape[2])) / 255
 
+    # cnn.add_layer(Conv2d(16, 5, 1))
+    # cnn.add_layer(MaxPooling((16, 24, 24), 2, 2))
+    # cnn.add_layer(Conv2d(32, 3, 16))
+    # cnn.add_layer(MaxPooling((32, 10, 10), 2, 2))
+    # cnn.add_layer(Flatten((32, 5, 5)))
+    # cnn.add_layer(FullyConnected(800, 10))
+    # cnn.add_layer(Softmax())
+
     cnn.add_layer(Conv2d(16, 5, 1))
     cnn.add_layer(MaxPooling((16, 24, 24), 2, 2))
     cnn.add_layer(Conv2d(32, 3, 16))
     cnn.add_layer(MaxPooling((32, 10, 10), 2, 2))
     cnn.add_layer(Flatten((32, 5, 5)))
-    cnn.add_layer(FullyConnected(800, 10))
+    cnn.add_layer(FullyConnected(800, 128))
+    cnn.add_layer(FullyConnected(128, 10))
     cnn.add_layer(Softmax())
 
     # cnn.add_layer(Conv2d(16, 5, 1))

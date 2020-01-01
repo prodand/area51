@@ -15,9 +15,11 @@ from vectorized.layers.fully_connected import FullyConnected
 class Cnn:
     loss_function = CrossEntropy()
 
-    def __init__(self, batch_size):
+    def __init__(self, batch_size, learning_rate, learning_rate_decay=0.005):
         self.layers = []
         self.batch_size = batch_size
+        self.learning_rate = learning_rate
+        self.learning_rate_decay = learning_rate_decay
         self.folds_number = 10
 
     def add_layer(self, layer):
@@ -29,14 +31,17 @@ class Cnn:
         :param labels: expected result in vector form
         :return:
         """
-        batch_engine = BatchEngine(self.layers, self.loss_function, 0.1, self.batch_size)
+        batch_engine = BatchEngine(self.layers, self.loss_function, self.batch_size)
 
         learned = False
         epoch = 1
         excluded_fold = 0
         while not learned:
             train_images, train_labels = self.extract_train_data(images, labels, excluded_fold)
-            train_loss = batch_engine.run(train_images, train_labels, epoch)
+            train_loss = batch_engine.run(train_images,
+                                          train_labels,
+                                          self.learning_rate - epoch * self.learning_rate_decay,
+                                          epoch)
 
             validation_images, validation_labels = self.extract_validate_data(images, labels, excluded_fold)
             validation_loss, percent = batch_engine.validate(validation_images, validation_labels)
@@ -88,7 +93,7 @@ class Cnn:
         path = "%s/main.txt" % folder
         file = open(path, "r")
         line = file.readline()
-        cnn = Cnn(300)
+        cnn = Cnn(300, 0.07)
         while not line is None:
             line = file.readline()
             if len(line) < 3:

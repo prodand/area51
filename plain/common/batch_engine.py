@@ -6,16 +6,15 @@ import numpy as np
 
 class BatchEngine:
 
-    def __init__(self, layers, loss_function, learning_rate, batch_size=32):
+    def __init__(self, layers, loss_function, batch_size=32):
         self.loss_fn = loss_function
         self.layers = layers
         self.batch_size = batch_size
-        self.learning_rate = learning_rate
         self.cache = list()
         self.train_plt_loss = []
         self.validation_plt_loss = []
 
-    def run(self, images, labels, epoch):
+    def run(self, images, labels, learning_rate, epoch):
         print('New Round')
         train_loss = 0
         batches_count = int(len(images) / self.batch_size)
@@ -23,7 +22,7 @@ class BatchEngine:
             start = batch_index * self.batch_size
             end = (batch_index + 1) * self.batch_size
             start_time = time.time()
-            loss = self.run_batch(images[start:end], labels[start:end], epoch)
+            loss = self.run_batch(images[start:end], labels[start:end], learning_rate)
             train_loss += loss
             print('%s Loss: %s [%s]' % (epoch, str(loss / self.batch_size), (time.time() - start_time)))
 
@@ -43,7 +42,7 @@ class BatchEngine:
 
         return total_loss / len(images), correct_answers / len(images)
 
-    def run_batch(self, images, labels, epoch=1):
+    def run_batch(self, images, labels, learning_rate):
         total_loss = 0
         layers_cache = list()
         for layer in self.layers:
@@ -73,7 +72,7 @@ class BatchEngine:
                 layer_index += 1
 
         for (layer, cache) in zip(self.layers, layers_cache):
-            layer.update_weights(cache, self.learning_rate / epoch)
+            layer.update_weights(cache, learning_rate)
 
         return total_loss
 
